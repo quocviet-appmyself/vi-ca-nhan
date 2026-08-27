@@ -45,6 +45,13 @@
       -webkit-appearance: none;
       color-scheme: light;
     }
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
 <body class="text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white">
@@ -84,7 +91,7 @@
             <div>
               <p id="fixed-budget-display" class="text-xs font-extrabold text-amber-300 mt-0.5">0 đ - CHI PHÍ CỐ ĐỊNH</p>
             </div>
-            <button onclick="openModal('modal-allocate-fixed')" class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-600 text-slate-950 flex items-center justify-center font-black text-xs shadow-md active:scale-95 transition" title="Chuyển tiền vào Chi phí cố định">
+            <button onclick="openModal('modal-allocate-fixed')" class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-600 text-slate-950 flex items-center justify-center font-black text-xs shadow-md active:scale-95 transition" title="Chuyển tiền từ Số dư ví sang Chi phí cố định">
               <i class="fa-solid fa-plus"></i>
             </button>
           </div>
@@ -240,11 +247,26 @@
       <!-- ==================== TAB 3: ĐẦU TƯ ==================== -->
       <div id="tab-investment" class="hidden space-y-4">
         <div class="bg-white rounded-3xl p-4 border border-slate-200/80 card-plastic space-y-3.5">
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center relative">
             <h2 class="text-xs font-black text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
               <i class="fa-solid fa-chart-line text-amber-600"></i> Quản Lý Quỹ Đầu Tư & An Toàn
             </h2>
-            <span class="text-[10px] bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full font-black border border-amber-300">Tài sản tích lũy</span>
+            
+            <!-- NÚT PRIVATE KHÔNG CHỮ CÓ ICON Ổ KHÓA -->
+            <button onclick="togglePrivateNotePanel()" class="w-7 h-7 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 flex items-center justify-center transition active:scale-95 shadow-sm" title="Private Note">
+              <i class="fa-solid fa-lock text-xs"></i>
+            </button>
+
+            <!-- DIV PRIVATE NOTE GIẤY GHI CHÚ MÀU VÀNG -->
+            <div id="private-note-panel" class="hidden absolute top-9 right-0 z-30 w-[130px] max-h-[500px] bg-yellow-200 border border-yellow-400 rounded-2xl shadow-2xl overflow-y-auto no-scrollbar">
+              <header class="sticky top-0 bg-yellow-400/100 border-b border-yellow-500/40 h-[36px] px-2 flex items-center justify-center w-full z-10 shadow-sm">
+                <button onclick="openModal('modal-add-private-note')" class="w-full h-6 bg-amber-500 hover:bg-amber-600 text-amber-950 rounded-lg flex items-center justify-center font-black text-sm leading-none shadow-sm active:scale-95 transition relative z-20" title="Thêm ghi chú">
+                  +
+                </button>
+              </header>
+              <div id="private-notes-list" class="space-y-1.5 p-2 text-[11px] text-amber-950 break-words">
+              </div>
+            </div>
           </div>
 
           <div class="bg-gradient-to-br from-amber-50 to-orange-50 p-4 rounded-2xl border border-amber-200/80 shadow-sm flex justify-between items-center">
@@ -297,11 +319,6 @@
       </div>
 
     </main>
-
-    <!-- NÚT TRÒN DẤU (+) FLOATING ACTION BUTTON -->
-    <button onclick="openModal('modal-allocate-fixed')" class="fixed right-5 bottom-20 w-14 h-14 bg-gradient-to-tr from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl font-black z-30 transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-white/40" title="Nạp tiền / Trích quỹ">
-      <i class="fa-solid fa-plus"></i>
-    </button>
 
     <!-- BOTTOM NAVBAR -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200/80 py-3 px-4 flex justify-around items-center z-40 shadow-2xl rounded-t-3xl">
@@ -368,7 +385,7 @@
       </div>
     </div>
 
-    <!-- MODAL POPUP NẠP TIỀN / CHI PHÍ CỐ ĐỊNH -->
+    <!-- MODAL POPUP NẠP TIỀN TỪ SỐ DƯ VÍ SANG CHI PHÍ CỐ ĐỊNH -->
     <div id="modal-allocate-fixed" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl">
         <div class="flex justify-between items-center border-b border-slate-200 pb-3">
@@ -376,7 +393,7 @@
             <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
               <i class="fa-solid fa-wallet"></i>
             </span>
-            Popup Nạp Tiền & Chi Phí Cố Định
+            Nạp Tiền Vào Chi Phí Cố Định
           </h3>
           <button onclick="closeModal('modal-allocate-fixed')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
@@ -388,7 +405,7 @@
 
         <div class="space-y-3 text-xs">
           <div>
-            <label class="block font-black text-slate-700 mb-1">Số Tiền Muốn Trích Nạp (VNĐ):</label>
+            <label class="block font-black text-slate-700 mb-1">Số tiền nạp từ Số dư ví hiện tại (VNĐ):</label>
             <input type="text" id="allocate-amount-input" inputmode="numeric" placeholder="0" oninput="formatCurrencyInput(this)" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-3.5 py-2.5 text-sm font-black text-slate-900 focus:outline-none focus:border-amber-600 shadow-sm" />
           </div>
         </div>
@@ -396,6 +413,27 @@
         <div class="grid grid-cols-2 gap-2 pt-2">
           <button onclick="closeModal('modal-allocate-fixed')" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-2xl border border-slate-200">Hủy</button>
           <button onclick="confirmAllocateFixed()" class="py-2.5 btn-plastic-amber text-white font-extrabold text-xs rounded-2xl uppercase tracking-wider">Xác Nhận Nạp</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL PRIVATE NOTE INPUT -->
+    <div id="modal-add-private-note" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-yellow-50 border-2 border-yellow-300 w-full max-w-xs rounded-3xl p-5 space-y-3.5 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-yellow-200 pb-2">
+          <h3 class="font-black text-xs text-amber-900 uppercase tracking-wider flex items-center gap-1.5">
+            <i class="fa-solid fa-key text-amber-600"></i> Thêm Ghi Chú Bảo Mật
+          </h3>
+          <button onclick="closeModal('modal-add-private-note')" class="text-amber-700 hover:text-amber-950"><i class="fa-solid fa-xmark text-lg"></i></button>
+        </div>
+        <div class="space-y-2.5">
+          <input type="text" id="pnote-title" placeholder="Title" class="w-full bg-white border border-amber-200 rounded-2xl px-3.5 py-2 text-xs font-bold text-amber-950 focus:outline-none focus:border-amber-500 shadow-sm" />
+          <input type="text" id="pnote-account" placeholder="Account" class="w-full bg-white border border-amber-200 rounded-2xl px-3.5 py-2 text-xs font-normal text-amber-950 focus:outline-none focus:border-amber-500 shadow-sm" />
+          <input type="text" id="pnote-pass" placeholder="Pass" class="w-full bg-white border border-amber-200 rounded-2xl px-3.5 py-2 text-xs font-normal text-amber-950 focus:outline-none focus:border-amber-500 shadow-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button onclick="closeModal('modal-add-private-note')" class="py-2.5 bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold text-xs rounded-2xl border border-amber-300">Hủy</button>
+          <button onclick="savePrivateNote()" class="py-2.5 btn-plastic-amber text-white font-extrabold text-xs rounded-2xl uppercase tracking-wider">Lưu lại</button>
         </div>
       </div>
     </div>
@@ -539,6 +577,8 @@
     let debts = [];
     let investments = [];
     let fixedBudgetBalance = 0; // Số dư ví Chi phí cố định
+    let totalFixedAllocated = 0; // Tổng tiền đã nạp vào Chi phí cố định
+    let privateNotes = []; // Danh sách Private notes
 
     let currentMainType = 'chi';
     let currentManageGroup = 'chi';
@@ -587,10 +627,13 @@
       transactions = [];
       debts = [];
       investments = [];
+      privateNotes = [];
       fixedBudgetBalance = 0;
+      totalFixedAllocated = 0;
       
       saveDataToStorage();
       loadDataFromStorage();
+      setMainType('chi');
       updateUI();
       closeModal('modal-reset-confirm');
       showToast("Đã Reset toàn bộ dữ liệu ứng dụng về trạng thái ban đầu!");
@@ -616,12 +659,20 @@
       const savedDebts = localStorage.getItem('kstd_debts');
       const savedInvs = localStorage.getItem('kstd_investments');
       const savedFixed = localStorage.getItem('kstd_fixed_balance');
+      const savedTotalFixed = localStorage.getItem('kstd_total_fixed_allocated');
+      const savedPNotes = localStorage.getItem('kstd_private_notes');
 
       if (savedCats) categories = JSON.parse(savedCats);
       if (savedTxs) transactions = JSON.parse(savedTxs);
       if (savedDebts) debts = JSON.parse(savedDebts);
       if (savedInvs) investments = JSON.parse(savedInvs);
       if (savedFixed !== null) fixedBudgetBalance = parseFloat(savedFixed) || 0;
+      if (savedTotalFixed !== null) {
+        totalFixedAllocated = parseFloat(savedTotalFixed) || 0;
+      } else {
+        totalFixedAllocated = fixedBudgetBalance;
+      }
+      if (savedPNotes) privateNotes = JSON.parse(savedPNotes);
 
       // Đổi tên các biến thể cũ sang "🏠 Chi phí cố định"
       if (categories.chi) {
@@ -641,6 +692,7 @@
 
       ensureDefaultInvestmentCategories();
       syncInvestmentsWithCategories();
+      renderPrivateNotes();
     }
 
     function saveDataToStorage() {
@@ -649,6 +701,8 @@
       localStorage.setItem('kstd_debts', JSON.stringify(debts));
       localStorage.setItem('kstd_investments', JSON.stringify(investments));
       localStorage.setItem('kstd_fixed_balance', fixedBudgetBalance);
+      localStorage.setItem('kstd_total_fixed_allocated', totalFixedAllocated);
+      localStorage.setItem('kstd_private_notes', JSON.stringify(privateNotes));
     }
 
     function ensureDefaultInvestmentCategories() {
@@ -696,6 +750,72 @@
       saveDataToStorage();
     }
 
+    function togglePrivateNotePanel() {
+      const panel = document.getElementById('private-note-panel');
+      panel.classList.toggle('hidden');
+      renderPrivateNotes();
+    }
+
+    function savePrivateNote() {
+      const title = document.getElementById('pnote-title').value.trim();
+      const account = document.getElementById('pnote-account').value.trim();
+      const pass = document.getElementById('pnote-pass').value.trim();
+
+      if (!title && !account && !pass) {
+        showToast("Vui lòng nhập thông tin cần lưu!", false);
+        return;
+      }
+
+      privateNotes.unshift({
+        id: 'pn_' + Date.now(),
+        title: title,
+        account: account,
+        pass: pass
+      });
+
+      document.getElementById('pnote-title').value = '';
+      document.getElementById('pnote-account').value = '';
+      document.getElementById('pnote-pass').value = '';
+
+      saveDataToStorage();
+      renderPrivateNotes();
+      closeModal('modal-add-private-note');
+      showToast("Đã thêm thông tin vào Private Note!");
+    }
+
+    function deletePrivateNote(idx) {
+      privateNotes.splice(idx, 1);
+      saveDataToStorage();
+      renderPrivateNotes();
+    }
+
+    function renderPrivateNotes() {
+      const container = document.getElementById('private-notes-list');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (privateNotes.length === 0) {
+        container.innerHTML = '<p class="text-[10px] text-amber-800/60 italic text-center py-2">Chưa có ghi chú</p>';
+        return;
+      }
+
+      privateNotes.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = "pb-1.5 mb-1.5 border-b border-dashed border-amber-400/80 last:border-b-0 relative group";
+        
+        let html = '';
+        if (item.title) html += `<p class="font-bold text-amber-950 leading-tight">${item.title}</p>`;
+        if (item.account) html += `<p class="font-normal text-amber-900 leading-tight">${item.account}</p>`;
+        if (item.pass) html += `<p class="font-normal text-amber-900 leading-tight">${item.pass}</p>`;
+
+        div.innerHTML = `
+          ${html}
+          <button onclick="deletePrivateNote(${idx})" class="text-[8px] text-rose-600 hover:text-rose-800 font-bold block mt-0.5 opacity-60 hover:opacity-100" title="Xóa">xóa</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
     function formatVND(num) {
       return new Intl.NumberFormat('vi-VN').format(num) + ' đ';
     }
@@ -741,6 +861,10 @@
 
     function closeModal(modalId) {
       document.getElementById(modalId).classList.add('hidden');
+    }
+
+    function openModal(modalId) {
+      document.getElementById(modalId).classList.remove('hidden');
     }
 
     function switchTab(tab) {
@@ -924,25 +1048,35 @@
       return 'borrow';
     }
 
+    function getMainBalance() {
+      let totalThu = 0;
+      let totalChiMain = 0;
+      transactions.forEach(t => {
+        if (t.mainType === 'thu') totalThu += t.amount;
+        if (t.mainType === 'chi' || t.mainType === 'dautu') {
+          const pName = (t.parentCat || '').toLowerCase();
+          if (!(t.mainType === 'chi' && pName.includes('chi phí cố định'))) {
+            totalChiMain += t.amount;
+          }
+        }
+      });
+      return totalThu - totalChiMain - totalFixedAllocated;
+    }
+
     function confirmAllocateFixed() {
       const amount = getRawAmount(document.getElementById('allocate-amount-input').value);
-      let totalThu = 0;
-      let totalChi = 0;
-      transactions.forEach(t => {
-        if(t.mainType === 'thu') totalThu += t.amount;
-        if(t.mainType === 'chi' || t.mainType === 'dautu') totalChi += t.amount;
-      });
-      const mainBalance = totalThu - totalChi;
+      const mainBalance = getMainBalance();
 
       if (!amount || amount <= 0) return showToast("Vui lòng nhập số tiền hợp lệ!", false);
       if (amount > mainBalance) return showToast("Số dư ví hiện tại không đủ để trích!", false);
 
       fixedBudgetBalance += amount;
+      totalFixedAllocated += amount;
       document.getElementById('allocate-amount-input').value = '';
       saveDataToStorage();
       updateUI();
       closeModal('modal-allocate-fixed');
-      showToast(`Đã trích ${formatVND(amount)} sang ví Chi phí cố định!`);
+      showToast(`Đã trích ${formatVND(amount)} từ Số dư ví sang Chi phí cố định!`);
     }
 
     function handleTransactionSubmit(e) {
@@ -959,7 +1093,7 @@
 
       if(!amount || amount <= 0) return showToast("Vui lòng nhập số tiền hợp lệ!", false);
 
-      // Xử lý logic Chi phí cố định: Nếu chi tiêu thuộc mảng "🏠 Chi phí cố định", trừ vào ví riêng nếu đủ, ngược lại trừ ví chính
+      // Xử lý logic Chi phí cố định
       if (currentMainType === 'chi' && parentCat.includes('Chi phí cố định')) {
         if (amount > fixedBudgetBalance) {
           return showToast(`Số tiền trong Chi phí cố định (${formatVND(fixedBudgetBalance)}) không đủ để thanh toán khoản chi này!`, false);
@@ -1110,7 +1244,7 @@
         if(t.mainType === 'chi' || t.mainType === 'dautu') totalChi += t.amount;
       });
 
-      const mainBalance = totalThu - totalChi;
+      const mainBalance = getMainBalance();
 
       document.getElementById('main-balance').textContent = formatVND(mainBalance);
       document.getElementById('fixed-budget-display').textContent = `${formatVND(fixedBudgetBalance)} - CHI PHÍ CỐ ĐỊNH`;
@@ -1602,7 +1736,7 @@
       const pLower = (parentName || '').toLowerCase();
       if (groupKey === 'chi' && (pLower.includes('trả nợ') && pLower.includes('cho vay'))) return true;
       if (groupKey === 'thu' && (pLower.includes('thu nợ') && pLower.includes('vay'))) return true;
-      if (groupKey === 'chi' && pLower.includes('chi phí cố định')) return true; // Khóa mảng Chi phí cố định
+      if (groupKey === 'chi' && pLower.includes('chi phí cố định')) return true;
       return false;
     }
 
@@ -1625,160 +1759,124 @@
         const actionButtons = isLocked 
           ? `<span class="text-slate-400 font-bold text-[10px] italic flex items-center gap-1"><i class="fa-solid fa-lock text-amber-500"></i> Cố định</span>`
           : `<div class="flex gap-2 text-[11px]">
-              <button onclick="editParentCategory(${pIdx})" class="text-amber-600 font-bold"><i class="fa-solid fa-pen"></i> Sửa</button>
-              <button onclick="deleteParentCategory(${pIdx})" class="text-rose-600 font-bold"><i class="fa-solid fa-trash"></i> Xóa</button>
+              <button onclick="openEditCategoryModal(${pIdx}, null)" class="text-blue-600 hover:text-blue-800 font-black"><i class="fa-solid fa-pen"></i> Sửa</button>
+              <button onclick="deleteParentCategory(${pIdx})" class="text-rose-600 hover:text-rose-800 font-black"><i class="fa-solid fa-trash"></i> Xóa</button>
             </div>`;
 
-        // Các thành phần bên trong mảng Chi phí cố định vẫn thêm bớt/chỉnh sửa bình thường
-        const addChildBox = (currentManageGroup === 'chi' && p.parent.includes('Chi phí cố định')) ? `
-          <div class="pt-1 flex gap-1.5">
-            <input type="text" id="add-child-input-${pIdx}" placeholder="+ Thêm thành phần..." class="bg-white border border-slate-300 rounded-xl px-2.5 py-1 text-[11px] text-slate-800 flex-1 font-medium" />
-            <button onclick="addChildCategory(${pIdx})" class="bg-blue-700 hover:bg-blue-800 text-white text-[10px] px-2.5 py-1 rounded-xl font-black shadow-sm">+ Thêm</button>
-          </div>
-        ` : (isLocked ? '' : `
-          <div class="pt-1 flex gap-1.5">
-            <input type="text" id="add-child-input-${pIdx}" placeholder="+ Thêm thành phần..." class="bg-white border border-slate-300 rounded-xl px-2.5 py-1 text-[11px] text-slate-800 flex-1 font-medium" />
-            <button onclick="addChildCategory(${pIdx})" class="bg-blue-700 hover:bg-blue-800 text-white text-[10px] px-2.5 py-1 rounded-xl font-black shadow-sm">+ Thêm</button>
-          </div>
-        `);
-
         pBox.innerHTML = `
-          <div class="flex justify-between items-center text-xs font-black text-blue-900 border-b border-slate-200/80 pb-1.5">
-            <span>${p.parent}</span>
+          <div class="flex justify-between items-center border-b border-slate-200/80 pb-1.5">
+            <span class="font-black text-slate-800">${p.parent}</span>
             ${actionButtons}
           </div>
-          <div class="pl-2 space-y-1" id="children-of-${pIdx}"></div>
-          ${addChildBox}
+          <div class="space-y-1 pt-1">
+            ${p.children.map((c, cIdx) => `
+              <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-slate-700">
+                <span class="font-bold">${c}</span>
+                ${!isLocked ? `
+                  <div class="flex gap-2">
+                    <button onclick="openEditCategoryModal(${pIdx}, ${cIdx})" class="text-blue-600 hover:text-blue-800 font-bold text-[10px]">Sửa</button>
+                    <button onclick="deleteChildCategory(${pIdx}, ${cIdx})" class="text-rose-600 hover:text-rose-800 font-bold text-[10px]">Xóa</button>
+                  </div>
+                ` : ''}
+              </div>
+            `).join('')}
+          </div>
+          ${!isLocked ? `
+            <div class="flex gap-2 pt-1">
+              <input type="text" id="new-child-${pIdx}" placeholder="+ Thêm thành phần" class="flex-1 bg-white border border-slate-300 rounded-xl px-2.5 py-1 text-slate-800 text-[11px]" />
+              <button onclick="addChildCategory(${pIdx})" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1 rounded-xl font-bold text-[11px]">Thêm</button>
+            </div>
+          ` : ''}
         `;
-
         container.appendChild(pBox);
-
-        const childContainer = pBox.querySelector(`#children-of-${pIdx}`);
-        p.children.forEach((c, cIdx) => {
-          const cRow = document.createElement('div');
-          cRow.className = "flex justify-between items-center text-[11px] font-semibold text-slate-700 py-0.5";
-          
-          const isFixedParent = (currentManageGroup === 'chi' && p.parent.includes('Chi phí cố định'));
-          const childActions = (isLocked && !isFixedParent)
-            ? `<span class="text-slate-400 text-[10px]"><i class="fa-solid fa-lock text-slate-300"></i></span>`
-            : `<div class="flex gap-2 text-[10px]">
-                <button onclick="editChildCategory(${pIdx}, ${cIdx})" class="text-amber-600"><i class="fa-solid fa-pen"></i></button>
-                <button onclick="deleteChildCategory(${pIdx}, ${cIdx})" class="text-rose-600"><i class="fa-solid fa-trash"></i></button>
-              </div>`;
-
-          cRow.innerHTML = `
-            <span>• ${c}</span>
-            ${childActions}
-          `;
-          childContainer.appendChild(cRow);
-        });
       });
     }
 
-    function addParentCategory() {
-      if (currentManageGroup === 'no') {
-        return showToast("Mảng Nợ đã được cố định hoàn toàn!", false);
-      }
-      const input = document.getElementById('new-parent-name');
-      if(input.value.trim()) {
-        categories[currentManageGroup].push({ id: 'p_' + Date.now(), parent: input.value.trim(), children: ['Mặc định'] });
-        input.value = '';
-        saveDataToStorage();
-        syncInvestmentsWithCategories();
-        renderCategoryTree();
-      }
-    }
-
-    function editParentCategory(pIdx) {
-      if (isLockedCategoryGroup(currentManageGroup, categories[currentManageGroup][pIdx].parent)) {
-        return showToast("Danh mục này được bảo vệ cố định để giữ logic hệ thống!", false);
-      }
-      editingCategoryContext = { pIdx: pIdx, cIdx: null };
-      const oldName = categories[currentManageGroup][pIdx].parent;
-      document.getElementById('edit-cat-modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600"></i> Sửa Tên Mảng';
-      document.getElementById('edit-cat-input-val').value = oldName;
-      document.getElementById('modal-edit-category-input').classList.remove('hidden');
-      setTimeout(() => document.getElementById('edit-cat-input-val').focus(), 100);
-    }
-
-    function editChildCategory(pIdx, cIdx) {
-      const parentName = categories[currentManageGroup][pIdx].parent;
-      if (isLockedCategoryGroup(currentManageGroup, parentName) && !parentName.includes('Chi phí cố định')) {
-        return showToast("Danh mục này được bảo vệ cố định để giữ logic hệ thống!", false);
-      }
-      editingCategoryContext = { pIdx: pIdx, cIdx: cIdx };
-      const oldName = categories[currentManageGroup][pIdx].children[cIdx];
-      document.getElementById('edit-cat-modal-title').innerHTML = '<i class="fa-solid fa-pen-to-square text-blue-600"></i> Sửa Tên Thành Phần';
-      document.getElementById('edit-cat-input-val').value = oldName;
-      document.getElementById('modal-edit-category-input').classList.remove('hidden');
-      setTimeout(() => document.getElementById('edit-cat-input-val').focus(), 100);
+    function openEditCategoryModal(pIdx, cIdx) {
+      editingCategoryContext = { pIdx, cIdx };
+      const catObj = categories[currentManageGroup][pIdx];
+      const val = cIdx === null ? catObj.parent : catObj.children[cIdx];
+      document.getElementById('edit-cat-input-val').value = val;
+      openModal('modal-edit-category-input');
     }
 
     function saveCategoryEditFromModal() {
-      const newName = document.getElementById('edit-cat-input-val').value.trim();
-      if (!newName) {
-        showToast("Vui lòng nhập tên danh mục hợp lệ!", false);
-        return;
-      }
+      const newVal = document.getElementById('edit-cat-input-val').value.trim();
+      if (!newVal) return showToast("Tên danh mục không được để trống!", false);
+
       const { pIdx, cIdx } = editingCategoryContext;
-      if (pIdx !== null && cIdx === null) {
-        categories[currentManageGroup][pIdx].parent = newName;
-      } else if (pIdx !== null && cIdx !== null) {
-        categories[currentManageGroup][pIdx].children[cIdx] = newName;
+      if (pIdx !== null) {
+        if (cIdx === null) {
+          categories[currentManageGroup][pIdx].parent = newVal;
+        } else {
+          categories[currentManageGroup][pIdx].children[cIdx] = newVal;
+        }
+        saveDataToStorage();
+        renderCategoryTree();
+        closeModal('modal-edit-category-input');
+        showToast("Đã cập nhật tên danh mục!");
       }
-      saveDataToStorage();
-      syncInvestmentsWithCategories();
-      renderCategoryTree();
-      closeModal('modal-edit-category-input');
-      showToast("Đã cập nhật tên danh mục!");
     }
 
     function deleteParentCategory(pIdx) {
-      if (isLockedCategoryGroup(currentManageGroup, categories[currentManageGroup][pIdx].parent)) {
-        return showToast("Danh mục này được bảo vệ cố định để giữ logic hệ thống!", false);
-      }
-      showConfirmModal("Bạn có muốn xóa Mảng này cùng toàn bộ thành phần bên trong?", function() {
+      showConfirmModal("Bạn có chắc chắn muốn xóa Mảng này cùng toàn bộ thành phần?", () => {
         categories[currentManageGroup].splice(pIdx, 1);
         saveDataToStorage();
-        syncInvestmentsWithCategories();
         renderCategoryTree();
+        showToast("Đã xóa Mảng danh mục!");
       });
     }
 
     function addChildCategory(pIdx) {
-      const input = document.getElementById(`add-child-input-${pIdx}`);
-      if(input.value.trim()) {
-        categories[currentManageGroup][pIdx].children.push(input.value.trim());
-        input.value = '';
-        saveDataToStorage();
-        syncInvestmentsWithCategories();
-        renderCategoryTree();
-      }
+      const input = document.getElementById(`new-child-${pIdx}`);
+      const val = input ? input.value.trim() : '';
+      if (!val) return showToast("Vui lòng nhập tên thành phần!", false);
+
+      categories[currentManageGroup][pIdx].children.push(val);
+      saveDataToStorage();
+      renderCategoryTree();
+      showToast("Đã thêm thành phần mới!");
     }
 
     function deleteChildCategory(pIdx, cIdx) {
-      const parentName = categories[currentManageGroup][pIdx].parent;
-      if (isLockedCategoryGroup(currentManageGroup, parentName) && !parentName.includes('Chi phí cố định')) {
-        return showToast("Danh mục này được bảo vệ cố định để giữ logic hệ thống!", false);
-      }
       categories[currentManageGroup][pIdx].children.splice(cIdx, 1);
       saveDataToStorage();
-      syncInvestmentsWithCategories();
       renderCategoryTree();
+      showToast("Đã xóa thành phần!");
     }
 
-    // KHỞI CHẠY LẦN ĐẦU
-    loadDataFromStorage();
+    function addParentCategory() {
+      const input = document.getElementById('new-parent-name');
+      const val = input ? input.value.trim() : '';
+      if (!val) return showToast("Vui lòng nhập tên Mảng mới!", false);
 
-    const today = new Date();
-    const curYYYY = today.getFullYear();
-    const curMM = String(today.getMonth() + 1).padStart(2, '0');
-    const curDD = String(today.getDate()).padStart(2, '0');
-    
-    document.getElementById('report-year-input').value = curYYYY;
-    document.getElementById('report-month-input').value = `${curYYYY}-${curMM}`;
-    document.getElementById('report-date-input').value = `${curYYYY}-${curMM}-${curDD}`;
-    updateUI();
+      categories[currentManageGroup].push({
+        id: 'cat_' + Date.now(),
+        parent: val,
+        children: []
+      });
+
+      input.value = '';
+      saveDataToStorage();
+      renderCategoryTree();
+      showToast("Đã thêm Mảng mới!");
+    }
+
+    // Khởi tạo ứng dụng khi load trang
+    window.addEventListener('DOMContentLoaded', () => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+
+      document.getElementById('report-year-input').value = yyyy;
+      document.getElementById('report-month-input').value = `${yyyy}-${mm}`;
+      document.getElementById('report-date-input').value = `${yyyy}-${mm}-${dd}`;
+
+      loadDataFromStorage();
+      setMainType('chi');
+      updateUI();
+    });
   </script>
 </body>
 </html>

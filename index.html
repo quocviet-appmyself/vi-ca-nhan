@@ -561,7 +561,7 @@
       chi: [
         { id: 'c1', parent: '🍜 Ăn Uống & Sinh Hoạt', children: ['Ăn sáng', 'Cà phê', 'Ăn trưa/tối', 'Đi chợ/Siêu thị'] },
         { id: 'c2', parent: '🏠 Chi phí cố định', children: ['Xăng xe', 'Điện nước', 'Mua sắm'] },
-        { id: 'c3', parent: '💳 Trả nợ & cho vay', children: ['Trả nợ', 'Cho vay', 'Cho mượn'] }
+        { id: 'c3', parent: '💳 Trả nợ & Cho vay', children: ['Trả nợ', 'Cho vay', 'Cho mượn'] }
       ],
       dautu: [
         { id: 'd1', parent: '📈 Quỹ Đầu Tư', children: ['Bất Động Sản (FourS)', 'Chứng Khoán', 'Vàng Tích Trữ', 'Tiết Kiệm'] },
@@ -1731,12 +1731,20 @@
       renderCategoryTree();
     }
 
-    function isLockedCategoryGroup(groupKey, parentName) {
+    function isParentLockedCategoryGroup(groupKey, parentName) {
       if (groupKey === 'no') return true;
       const pLower = (parentName || '').toLowerCase();
       if (groupKey === 'chi' && (pLower.includes('trả nợ') && pLower.includes('cho vay'))) return true;
       if (groupKey === 'thu' && (pLower.includes('thu nợ') && pLower.includes('vay'))) return true;
       if (groupKey === 'chi' && pLower.includes('chi phí cố định')) return true;
+      return false;
+    }
+
+    function isChildLockedCategoryGroup(groupKey, parentName) {
+      if (groupKey === 'no') return true;
+      const pLower = (parentName || '').toLowerCase();
+      if (groupKey === 'chi' && (pLower.includes('trả nợ') && pLower.includes('cho vay'))) return true;
+      if (groupKey === 'thu' && (pLower.includes('thu nợ') && pLower.includes('vay'))) return true;
       return false;
     }
 
@@ -1752,12 +1760,14 @@
       }
 
       categories[currentManageGroup].forEach((p, pIdx) => {
-        const isLocked = isLockedCategoryGroup(currentManageGroup, p.parent);
+        const parentLocked = isParentLockedCategoryGroup(currentManageGroup, p.parent);
+        const childLocked = isChildLockedCategoryGroup(currentManageGroup, p.parent);
+        
         const pBox = document.createElement('div');
         pBox.className = "p-3 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2 shadow-sm";
         
-        const actionButtons = isLocked 
-          ? `<span class="text-slate-400 font-bold text-[10px] italic flex items-center gap-1"><i class="fa-solid fa-lock text-amber-500"></i> Cố định</span>`
+        const actionButtons = parentLocked 
+          ? ``
           : `<div class="flex gap-2 text-[11px]">
               <button onclick="openEditCategoryModal(${pIdx}, null)" class="text-blue-600 hover:text-blue-800 font-black"><i class="fa-solid fa-pen"></i> Sửa</button>
               <button onclick="deleteParentCategory(${pIdx})" class="text-rose-600 hover:text-rose-800 font-black"><i class="fa-solid fa-trash"></i> Xóa</button>
@@ -1772,7 +1782,7 @@
             ${p.children.map((c, cIdx) => `
               <div class="flex justify-between items-center bg-white p-2 rounded-xl border border-slate-200 text-slate-700">
                 <span class="font-bold">${c}</span>
-                ${!isLocked ? `
+                ${!childLocked ? `
                   <div class="flex gap-2">
                     <button onclick="openEditCategoryModal(${pIdx}, ${cIdx})" class="text-blue-600 hover:text-blue-800 font-bold text-[10px]">Sửa</button>
                     <button onclick="deleteChildCategory(${pIdx}, ${cIdx})" class="text-rose-600 hover:text-rose-800 font-bold text-[10px]">Xóa</button>
@@ -1781,7 +1791,7 @@
               </div>
             `).join('')}
           </div>
-          ${!isLocked ? `
+          ${!childLocked ? `
             <div class="flex gap-2 pt-1">
               <input type="text" id="new-child-${pIdx}" placeholder="+ Thêm thành phần" class="flex-1 bg-white border border-slate-300 rounded-xl px-2.5 py-1 text-slate-800 text-[11px]" />
               <button onclick="addChildCategory(${pIdx})" class="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1 rounded-xl font-bold text-[11px]">Thêm</button>

@@ -50,7 +50,7 @@
 <body class="text-slate-800 font-sans antialiased selection:bg-blue-600 selection:text-white">
 
   <!-- FRAME ĐIỆN THOẠI FULL SCREEN -->
-  <div class="max-w-md mx-auto bg-slate-100 min-h-screen shadow-2xl flex flex-col relative pb-24 pt-3 border-x border-slate-200">
+  <div class="max-w-md mx-auto bg-slate-100 min-h-screen shadow-2xl flex flex-col relative pb-28 pt-3 border-x border-slate-200">
 
     <!-- CONTENT CHÍNH FULL SCREEN -->
     <main class="p-4 space-y-4 flex-1">
@@ -79,7 +79,17 @@
           <p class="text-[11px] text-blue-200 font-bold uppercase tracking-wider">Số Dư Ví Hiện Tại</p>
           <p id="main-balance" class="text-3xl font-black mt-1 text-white tracking-tight">0 đ</p>
 
-          <div class="grid grid-cols-2 gap-2.5 mt-4 pt-3.5 border-t border-slate-800/80">
+          <!-- DIV NHỎ THÊM MỚI CHO CHI PHÍ CỐ ĐỊNH -->
+          <div class="mt-2.5 pt-2 border-t border-slate-800/60 flex items-center justify-between">
+            <div>
+              <p id="fixed-budget-display" class="text-xs font-extrabold text-amber-300 mt-0.5">0 đ - CHI PHÍ CỐ ĐỊNH</p>
+            </div>
+            <button onclick="openModal('modal-allocate-fixed')" class="w-7 h-7 rounded-full bg-amber-500 hover:bg-amber-600 text-slate-950 flex items-center justify-center font-black text-xs shadow-md active:scale-95 transition" title="Chuyển tiền vào Chi phí cố định">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5 mt-3 pt-3 border-t border-slate-800/80">
             <div class="bg-slate-800/90 p-3 rounded-2xl border border-emerald-500/30 shadow-inner">
               <p class="text-[10px] text-emerald-400 font-bold uppercase flex items-center gap-1">
                 <i class="fa-solid fa-arrow-down"></i> Tổng Thu
@@ -288,6 +298,11 @@
 
     </main>
 
+    <!-- NÚT TRÒN DẤU (+) FLOATING ACTION BUTTON -->
+    <button onclick="openModal('modal-allocate-fixed')" class="fixed right-5 bottom-20 w-14 h-14 bg-gradient-to-tr from-amber-600 to-amber-500 hover:from-amber-700 hover:to-amber-600 text-white rounded-full shadow-2xl flex items-center justify-center text-2xl font-black z-30 transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-white/40" title="Nạp tiền / Trích quỹ">
+      <i class="fa-solid fa-plus"></i>
+    </button>
+
     <!-- BOTTOM NAVBAR -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-white/95 backdrop-blur-md border-t border-slate-200/80 py-3 px-4 flex justify-around items-center z-40 shadow-2xl rounded-t-3xl">
       <button onclick="switchTab('home')" id="nav-home" class="flex flex-col items-center text-blue-700 font-black text-[10px]">
@@ -349,6 +364,38 @@
         <div class="grid grid-cols-2 gap-2 pt-1">
           <button onclick="closeModal('modal-edit-category-input')" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-2xl border border-slate-200">Hủy</button>
           <button onclick="saveCategoryEditFromModal()" class="py-2.5 btn-plastic-blue text-white font-extrabold text-xs rounded-2xl uppercase tracking-wider">Lưu lại</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL POPUP NẠP TIỀN / CHI PHÍ CỐ ĐỊNH -->
+    <div id="modal-allocate-fixed" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div class="bg-white border border-slate-200 w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-200 pb-3">
+          <h3 class="font-black text-xs text-blue-900 uppercase tracking-wider flex items-center gap-2">
+            <span class="w-7 h-7 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
+              <i class="fa-solid fa-wallet"></i>
+            </span>
+            Popup Nạp Tiền & Chi Phí Cố Định
+          </h3>
+          <button onclick="closeModal('modal-allocate-fixed')" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 text-xs shadow-sm space-y-1">
+          <p class="text-[10px] text-amber-800 font-black uppercase">Quỹ Chi Phí Cố Định Hiện Tại:</p>
+          <p id="modal-fixed-balance" class="font-black text-amber-950 text-base">0 đ</p>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-black text-slate-700 mb-1">Số Tiền Muốn Trích Nạp (VNĐ):</label>
+            <input type="text" id="allocate-amount-input" inputmode="numeric" placeholder="0" oninput="formatCurrencyInput(this)" class="w-full bg-slate-50 border-2 border-slate-200 rounded-2xl px-3.5 py-2.5 text-sm font-black text-slate-900 focus:outline-none focus:border-amber-600 shadow-sm" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <button onclick="closeModal('modal-allocate-fixed')" class="py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs rounded-2xl border border-slate-200">Hủy</button>
+          <button onclick="confirmAllocateFixed()" class="py-2.5 btn-plastic-amber text-white font-extrabold text-xs rounded-2xl uppercase tracking-wider">Xác Nhận Nạp</button>
         </div>
       </div>
     </div>
@@ -475,7 +522,7 @@
       ],
       chi: [
         { id: 'c1', parent: '🍜 Ăn Uống & Sinh Hoạt', children: ['Ăn sáng', 'Cà phê', 'Ăn trưa/tối', 'Đi chợ/Siêu thị'] },
-        { id: 'c2', parent: '🏡 Gia Đình & Xe Cộ', children: ['Xăng xe', 'Điện nước', 'Mua sắm'] },
+        { id: 'c2', parent: '🏠 Chi phí cố định', children: ['Xăng xe', 'Điện nước', 'Mua sắm'] },
         { id: 'c3', parent: '💳 Trả nợ & cho vay', children: ['Trả nợ', 'Cho vay', 'Cho mượn'] }
       ],
       dautu: [
@@ -491,6 +538,7 @@
     let transactions = [];
     let debts = [];
     let investments = [];
+    let fixedBudgetBalance = 0; // Số dư ví Chi phí cố định
 
     let currentMainType = 'chi';
     let currentManageGroup = 'chi';
@@ -539,6 +587,7 @@
       transactions = [];
       debts = [];
       investments = [];
+      fixedBudgetBalance = 0;
       
       saveDataToStorage();
       loadDataFromStorage();
@@ -566,22 +615,28 @@
       const savedTxs = localStorage.getItem('kstd_transactions');
       const savedDebts = localStorage.getItem('kstd_debts');
       const savedInvs = localStorage.getItem('kstd_investments');
+      const savedFixed = localStorage.getItem('kstd_fixed_balance');
 
       if (savedCats) categories = JSON.parse(savedCats);
       if (savedTxs) transactions = JSON.parse(savedTxs);
       if (savedDebts) debts = JSON.parse(savedDebts);
       if (savedInvs) investments = JSON.parse(savedInvs);
+      if (savedFixed !== null) fixedBudgetBalance = parseFloat(savedFixed) || 0;
 
-      // Cập nhật nâng cấp tên danh mục cũ nếu còn lưu trữ
+      // Đổi tên các biến thể cũ sang "🏠 Chi phí cố định"
       if (categories.chi) {
         categories.chi.forEach(p => {
+          const pNameLower = (p.parent || '').toLowerCase();
+          if (pNameLower.includes('gia đình & xe cộ') || pNameLower.includes('gia đình') || pNameLower.includes('fixed') || pNameLower.includes('chi phí cố định')) {
+            p.parent = '🏠 Chi phí cố định';
+          }
           if (p.parent === '💳 Nợ & Cho Vay' || p.parent === '💳 Nợ & Cho vay') {
             p.parent = '💳 Trả nợ & cho vay';
           }
         });
       }
 
-      // Ép cố định cấu trúc Tab Nợ theo yêu cầu mới
+      // Ép cố định cấu trúc Tab Nợ theo yêu cầu
       categories.no = JSON.parse(JSON.stringify(defaultCategories.no));
 
       ensureDefaultInvestmentCategories();
@@ -593,6 +648,7 @@
       localStorage.setItem('kstd_transactions', JSON.stringify(transactions));
       localStorage.setItem('kstd_debts', JSON.stringify(debts));
       localStorage.setItem('kstd_investments', JSON.stringify(investments));
+      localStorage.setItem('kstd_fixed_balance', fixedBudgetBalance);
     }
 
     function ensureDefaultInvestmentCategories() {
@@ -868,6 +924,27 @@
       return 'borrow';
     }
 
+    function confirmAllocateFixed() {
+      const amount = getRawAmount(document.getElementById('allocate-amount-input').value);
+      let totalThu = 0;
+      let totalChi = 0;
+      transactions.forEach(t => {
+        if(t.mainType === 'thu') totalThu += t.amount;
+        if(t.mainType === 'chi' || t.mainType === 'dautu') totalChi += t.amount;
+      });
+      const mainBalance = totalThu - totalChi;
+
+      if (!amount || amount <= 0) return showToast("Vui lòng nhập số tiền hợp lệ!", false);
+      if (amount > mainBalance) return showToast("Số dư ví hiện tại không đủ để trích!", false);
+
+      fixedBudgetBalance += amount;
+      document.getElementById('allocate-amount-input').value = '';
+      saveDataToStorage();
+      updateUI();
+      closeModal('modal-allocate-fixed');
+      showToast(`Đã trích ${formatVND(amount)} sang ví Chi phí cố định!`);
+    }
+
     function handleTransactionSubmit(e) {
       e.preventDefault();
       const amount = getRawAmount(document.getElementById('tx-amount').value);
@@ -881,6 +958,14 @@
       const now = new Date();
 
       if(!amount || amount <= 0) return showToast("Vui lòng nhập số tiền hợp lệ!", false);
+
+      // Xử lý logic Chi phí cố định: Nếu chi tiêu thuộc mảng "🏠 Chi phí cố định", trừ vào ví riêng nếu đủ, ngược lại trừ ví chính
+      if (currentMainType === 'chi' && parentCat.includes('Chi phí cố định')) {
+        if (amount > fixedBudgetBalance) {
+          return showToast(`Số tiền trong Chi phí cố định (${formatVND(fixedBudgetBalance)}) không đủ để thanh toán khoản chi này!`, false);
+        }
+        fixedBudgetBalance -= amount;
+      }
 
       const linkedDebtId = document.getElementById('tx-linked-debt').value;
       const partnerName = document.getElementById('tx-partner-name').value.trim();
@@ -1028,6 +1113,8 @@
       const mainBalance = totalThu - totalChi;
 
       document.getElementById('main-balance').textContent = formatVND(mainBalance);
+      document.getElementById('fixed-budget-display').textContent = `${formatVND(fixedBudgetBalance)} - CHI PHÍ CỐ ĐỊNH`;
+      document.getElementById('modal-fixed-balance').textContent = formatVND(fixedBudgetBalance);
       document.getElementById('total-thu').textContent = '+' + formatVND(totalThu);
       document.getElementById('total-chi').textContent = '-' + formatVND(totalChi);
 
@@ -1511,10 +1598,11 @@
     }
 
     function isLockedCategoryGroup(groupKey, parentName) {
-      if (groupKey === 'no') return true; // Fix cứng toàn bộ Tab Nợ
+      if (groupKey === 'no') return true;
       const pLower = (parentName || '').toLowerCase();
-      if (groupKey === 'chi' && pLower.includes('trả nợ') && pLower.includes('cho vay')) return true;
-      if (groupKey === 'thu' && pLower.includes('thu nợ') && pLower.includes('vay')) return true;
+      if (groupKey === 'chi' && (pLower.includes('trả nợ') && pLower.includes('cho vay'))) return true;
+      if (groupKey === 'thu' && (pLower.includes('thu nợ') && pLower.includes('vay'))) return true;
+      if (groupKey === 'chi' && pLower.includes('chi phí cố định')) return true; // Khóa mảng Chi phí cố định
       return false;
     }
 
@@ -1541,12 +1629,18 @@
               <button onclick="deleteParentCategory(${pIdx})" class="text-rose-600 font-bold"><i class="fa-solid fa-trash"></i> Xóa</button>
             </div>`;
 
-        const addChildBox = isLocked ? '' : `
+        // Các thành phần bên trong mảng Chi phí cố định vẫn thêm bớt/chỉnh sửa bình thường
+        const addChildBox = (currentManageGroup === 'chi' && p.parent.includes('Chi phí cố định')) ? `
           <div class="pt-1 flex gap-1.5">
             <input type="text" id="add-child-input-${pIdx}" placeholder="+ Thêm thành phần..." class="bg-white border border-slate-300 rounded-xl px-2.5 py-1 text-[11px] text-slate-800 flex-1 font-medium" />
             <button onclick="addChildCategory(${pIdx})" class="bg-blue-700 hover:bg-blue-800 text-white text-[10px] px-2.5 py-1 rounded-xl font-black shadow-sm">+ Thêm</button>
           </div>
-        `;
+        ` : (isLocked ? '' : `
+          <div class="pt-1 flex gap-1.5">
+            <input type="text" id="add-child-input-${pIdx}" placeholder="+ Thêm thành phần..." class="bg-white border border-slate-300 rounded-xl px-2.5 py-1 text-[11px] text-slate-800 flex-1 font-medium" />
+            <button onclick="addChildCategory(${pIdx})" class="bg-blue-700 hover:bg-blue-800 text-white text-[10px] px-2.5 py-1 rounded-xl font-black shadow-sm">+ Thêm</button>
+          </div>
+        `);
 
         pBox.innerHTML = `
           <div class="flex justify-between items-center text-xs font-black text-blue-900 border-b border-slate-200/80 pb-1.5">
@@ -1564,7 +1658,8 @@
           const cRow = document.createElement('div');
           cRow.className = "flex justify-between items-center text-[11px] font-semibold text-slate-700 py-0.5";
           
-          const childActions = isLocked 
+          const isFixedParent = (currentManageGroup === 'chi' && p.parent.includes('Chi phí cố định'));
+          const childActions = (isLocked && !isFixedParent)
             ? `<span class="text-slate-400 text-[10px]"><i class="fa-solid fa-lock text-slate-300"></i></span>`
             : `<div class="flex gap-2 text-[10px]">
                 <button onclick="editChildCategory(${pIdx}, ${cIdx})" class="text-amber-600"><i class="fa-solid fa-pen"></i></button>
@@ -1607,7 +1702,8 @@
     }
 
     function editChildCategory(pIdx, cIdx) {
-      if (isLockedCategoryGroup(currentManageGroup, categories[currentManageGroup][pIdx].parent)) {
+      const parentName = categories[currentManageGroup][pIdx].parent;
+      if (isLockedCategoryGroup(currentManageGroup, parentName) && !parentName.includes('Chi phí cố định')) {
         return showToast("Danh mục này được bảo vệ cố định để giữ logic hệ thống!", false);
       }
       editingCategoryContext = { pIdx: pIdx, cIdx: cIdx };
@@ -1650,9 +1746,6 @@
     }
 
     function addChildCategory(pIdx) {
-      if (isLockedCategoryGroup(currentManageGroup, categories[currentManageGroup][pIdx].parent)) {
-        return showToast("Danh mục này được bảo vệ cố định để giữ logic hệ thống!", false);
-      }
       const input = document.getElementById(`add-child-input-${pIdx}`);
       if(input.value.trim()) {
         categories[currentManageGroup][pIdx].children.push(input.value.trim());
@@ -1664,7 +1757,8 @@
     }
 
     function deleteChildCategory(pIdx, cIdx) {
-      if (isLockedCategoryGroup(currentManageGroup, categories[currentManageGroup][pIdx].parent)) {
+      const parentName = categories[currentManageGroup][pIdx].parent;
+      if (isLockedCategoryGroup(currentManageGroup, parentName) && !parentName.includes('Chi phí cố định')) {
         return showToast("Danh mục này được bảo vệ cố định để giữ logic hệ thống!", false);
       }
       categories[currentManageGroup][pIdx].children.splice(cIdx, 1);
@@ -1684,8 +1778,6 @@
     document.getElementById('report-year-input').value = curYYYY;
     document.getElementById('report-month-input').value = `${curYYYY}-${curMM}`;
     document.getElementById('report-date-input').value = `${curYYYY}-${curMM}-${curDD}`;
-
-    setMainType('chi');
     updateUI();
   </script>
 </body>

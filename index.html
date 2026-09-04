@@ -83,7 +83,10 @@
             <span id="reset-hold-hint" class="text-[9px] text-rose-400 font-bold mt-1 hidden animate-pulse">Giữ 10s...</span>
           </div>
 
-          <p class="text-[11px] text-blue-200 font-bold uppercase tracking-wider">Số Dư Ví Hiện Tại</p>
+          <div class="flex items-center justify-between pr-12">
+            <p class="text-[11px] text-blue-200 font-bold uppercase tracking-wider">Số Dư Ví Hiện Tại</p>
+            <p id="current-date-display" class="text-[11px] text-blue-200 font-bold tracking-wider"></p>
+          </div>
           <p id="main-balance" class="text-3xl font-black mt-1 text-white tracking-tight">0 đ</p>
 
           <!-- DIV NHỎ THÊM MỚI CHO CHI PHÍ CỐ ĐỊNH -->
@@ -1247,6 +1250,7 @@
       const mainBalance = getMainBalance();
 
       document.getElementById('main-balance').textContent = formatVND(mainBalance);
+      document.getElementById('current-date-display').textContent = formatDateOnly(new Date());
       document.getElementById('fixed-budget-display').textContent = `${formatVND(fixedBudgetBalance)} - CHI PHÍ CỐ ĐỊNH`;
       document.getElementById('modal-fixed-balance').textContent = formatVND(fixedBudgetBalance);
       document.getElementById('total-thu').textContent = '+' + formatVND(totalThu);
@@ -1254,7 +1258,19 @@
 
       const recentList = document.getElementById('recent-transactions-list');
       recentList.innerHTML = '';
-      transactions.slice(0, 5).forEach(t => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const threeDaysAgo = new Date(today);
+      threeDaysAgo.setDate(today.getDate() - 2);
+
+      transactions
+        .filter(t => {
+          const transactionDate = new Date(t.date);
+          transactionDate.setHours(0, 0, 0, 0);
+          return transactionDate >= threeDaysAgo && transactionDate <= today;
+        })
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .forEach(t => {
         const div = document.createElement('div');
         div.className = "flex justify-between items-center p-3 rounded-2xl bg-slate-50 border border-slate-200/80 shadow-sm";
         div.innerHTML = `
@@ -1358,7 +1374,10 @@
 
       const listArray = Object.values(summary);
       const priority = { 'thu': 1, 'dautu': 2, 'no': 3, 'chi': 4 };
-      listArray.sort((a, b) => priority[a.mainType] - priority[b.mainType]);
+      listArray.sort((a, b) => {
+        const typeOrder = priority[a.mainType] - priority[b.mainType];
+        return typeOrder !== 0 ? typeOrder : b.totalAmount - a.totalAmount;
+      });
 
       if(listArray.length === 0) {
         container.innerHTML = `<p class="text-xs text-slate-400 text-center py-6 font-medium">Không có dữ liệu giao dịch trong khoảng thời gian đã chọn</p>`;

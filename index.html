@@ -1249,8 +1249,13 @@
     function updateUI() {
       let totalThu = 0;
       let totalChi = 0;
+      const currentDate = new Date();
+      const currentYear = currentDate.getFullYear();
+      const currentMonth = currentDate.getMonth();
 
       transactions.forEach(t => {
+        const transactionDate = new Date(t.date);
+        if (transactionDate.getFullYear() !== currentYear || transactionDate.getMonth() !== currentMonth) return;
         if(t.mainType === 'thu') totalThu += t.amount;
         if(t.mainType === 'chi' || t.mainType === 'dautu') totalChi += t.amount;
       });
@@ -1258,7 +1263,7 @@
       const mainBalance = getMainBalance();
 
       document.getElementById('main-balance').textContent = formatVND(mainBalance);
-      document.getElementById('current-date-display').textContent = formatDateOnly(new Date());
+      document.getElementById('current-date-display').textContent = formatDateOnly(currentDate);
       document.getElementById('fixed-budget-display').textContent = `${formatVND(fixedBudgetBalance)} - CHI PHÍ CỐ ĐỊNH`;
       document.getElementById('modal-fixed-balance').textContent = formatVND(fixedBudgetBalance);
       document.getElementById('total-thu').textContent = '+' + formatVND(totalThu);

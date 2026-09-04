@@ -833,6 +833,14 @@
       return `${day}/${month}/${year} ${hours}:${mins}`;
     }
 
+    function formatDateOnly(dateObj) {
+      const d = new Date(dateObj);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
     function showToast(msg, isSuccess = true) {
       const modal = document.getElementById('modal-toast');
       const iconBox = document.getElementById('toast-icon-box');
